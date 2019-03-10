@@ -67,17 +67,17 @@ function renderSets(sets) {
     for (var i = 0; i < sets.length; i++) {
         var set = sets[i];
         var newRow = $('<tr data-key="' + set.key + '"></tr>');
-        newRow.append('<td class="restore"><i class="icon-arrow-up"></i> Restore</td>');
+        newRow.append('<td class="restore"><i class="fas fa-arrow-up"></i> Restore</td>');
         newRow.append('<td class="setName">' + set.name + '</td>');
 
         var isChecked = set.autoSubmit ? "checked" : "";
         var submitHtml = isChecked
-            ? '<i class="icon-ok"></i> <span>Yes</span>'
-            : '<i class="icon-remove"></i> <span>No</span>';
+            ? '<i class="fas icon-ok"></i> <span>Yes</span>'
+            : '<i class="fas icon-remove"></i> <span>No</span>';
 
         newRow.append('<td class="submit ' + (isChecked ? 'active' : '') + '">' + submitHtml + '</td>');
-        newRow.append('<td class="remove"><i class="icon-trash"></i></td>');
-        newRow.append('<td class="export"><i class="icon-share-alt"></i></td>');
+        newRow.append('<td class="remove"><i class="fas fa-trash-alt"></td>');
+        newRow.append('<td class="export"><i class="fas fa-share-alt"></i></td>');
 
         var hotkey = set.hotkey;
         newRow.append('<td class="hotkey">' + (hotkey ? hotkey : 'none') + '</a></td>');
