@@ -1,15 +1,19 @@
 var tab_url;
 
 function getAllSets() {
-    var sets = [];
 
-    for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
+    var sets = [];
+    var bundle = null;
+    browser.storage.sync.get().then(response => bundle = response, error => {console.log(`Error: ${error}`); bundle = {};})
+    while (bundle === null) {
+        // wait for async to settle
+    }
+    for (var i = 0; i < Object.keys(bundle).length; i++) {
+        var key = Object.keys(bundle)[i];
         if (key == 'filter') {
             continue;
         }
-        
-        var settings = JSON.parse(localStorage.getItem(key));
+        var settings = JSON.parse(bundle[key]);
         settings.key = key;
         sets.push(settings);
     }
@@ -18,6 +22,7 @@ function getAllSets() {
 }
 
 function sortBy(property) {
+
     var sortOrder = 1;
     if (property[0] === "-") {
         sortOrder = -1;
@@ -30,6 +35,7 @@ function sortBy(property) {
 }
 
 function refreshSetsList(url) {
+
     var table = $('#sets');
     var sets;
     
@@ -64,6 +70,7 @@ function refreshSetsList(url) {
 }
 
 function renderSets(sets) {
+
     for (var i = 0; i < sets.length; i++) {
         var set = sets[i];
         var newRow = $('<tr data-key="' + set.key + '"></tr>');
@@ -87,6 +94,7 @@ function renderSets(sets) {
 }
 
 function renderAdditionalInfo(sets) {
+
     var table = $('#sets');
 
     if (!table.find('th.url').length) {
@@ -103,42 +111,51 @@ function renderAdditionalInfo(sets) {
 }
 
 function saveValue(tr, property, value) {
+
     var key = tr.data('key');
-    var setSettings = JSON.parse(localStorage.getItem(key));
+    var setSettings = null;
+    browser.storage.sync.get(key).then(response => setSettings = response, error => {console.log(`Error: ${error}`); setSettings = {};})
+    while (setSettings === null) {
+        // wait for async to settle
+    }
     setSettings[property] = value;
-    localStorage.setItem(key, JSON.stringify(setSettings));
+    browser.storage.sync.set({key: JSON.stringify(setSettings)});
 }
 
 function getValue(tr, property) {
+
     var key = tr.data('key');
-    var setSettings = JSON.parse(localStorage.getItem(key));
+    var setSettings = null;
+    browser.storage.sync.get(key).then(response => setSettings = response, error => {console.log(`Error: ${error}`); setSettings = {};})
+    while (setSettings === null) {
+        // wait for async to settle
+    }
     return setSettings[property];
 }
 
 function sendMessage(obj, callback) {
+
     chrome.tabs.query({ 'active': true, 'currentWindow': true }, function (tab) {
         chrome.tabs.sendMessage(tab[0].id, obj, callback);
     });
 }
 
 function setCurrentFilter() {
-    var value = localStorage.getItem('filter');
-    
+
+    var value;
+    browser.storage.sync.get('filter').then(response => value = response, error => console.log(`Error: ${error}`))
     if (!value) {
-        localStorage.setItem('filter', FILTER_BY_FULL);
+        browser.storage.sync.set({'filter': FILTER_BY_FULL});
         value = FILTER_BY_FULL;
     }
 
     var link = $('a.filter[id=' + value + ']');
-    link.prepend('<i class="icon-ok"></i> ');
+    link.css('font-weight', 'bold');
 }
 
 function getRandomStorageId() {
-    var key = Math.floor((Math.random() * 1000000000) + 1);
-    if (localStorage.getItem(key)) {
-        return Math.floor((Math.random() * 1000000000) + 1);
-    }
-    return key;
+
+    return Date.now();
 }
 
 chrome.tabs.query({ 'active': true, 'currentWindow': true }, function (tab) {
@@ -189,7 +206,7 @@ $(document).ready(function () {
 			}
 			
 			var key = getRandomStorageId();
-			localStorage.setItem(key, JSON.stringify(importedForm));
+            browser.storage.sync.set({key: JSON.stringify(importedForm)});
 
 		}
 		catch (err) {
@@ -208,7 +225,7 @@ $(document).ready(function () {
         var sets = getSetsForCurrentUrl(tab_url);
         
         for (var i = 0; i < sets.length; i++) {
-            localStorage.removeItem(sets[i].key);
+            browser.storage.sync.remove(sets[i].key);
         }
 
         refreshSetsList(tab_url);
@@ -243,8 +260,7 @@ $(document).ready(function () {
                 name: key,
                 hotkey: ''
             };
-
-            localStorage.setItem(key, JSON.stringify(setSettings));
+            browser.storage.sync.set({key: JSON.stringify(setSettings)});
             refreshSetsList(tab_url);
         });
     });
@@ -257,8 +273,11 @@ $(document).ready(function () {
 
     sets.on("click", 'td.restore:not(.disabled)', function (event) {
         var key = $(this).parents('tr').data('key');
-        var setSettings = JSON.parse(localStorage.getItem(key));
-
+        var setSettings = null;
+        browser.storage.sync.get(key).then(response => setSettings = response, error => {console.log(`Error: ${error}`); setSettings = {};})
+        while (setSettings === null) {
+            // wait for async to settle
+        }
         sendMessage({ action: 'fill', setSettings: setSettings }, function(response) {
              window.close();
         });
@@ -297,8 +316,7 @@ $(document).ready(function () {
     sets.on("click", 'td.remove', function (event) {
         var tr = $(this).parents('tr');
         var key = tr.data('key');
-        
-        localStorage.removeItem(key);
+        browser.storage.sync.remove(key);
 		refreshSetsList(tab_url);
     });
 
@@ -313,8 +331,11 @@ $(document).ready(function () {
         var td = $(this);
         var tr = td.parents('tr');
         var key = tr.data('key');
-        var formJson = localStorage.getItem(key);
-
+        var formJson = null;
+        browser.storage.sync.get(key).then(response => formJson = response, error => {console.log(`Error: ${error}`); formJson = {};})
+        while (formJson === null) {
+            // wait for async to settle
+        }
         td.addClass('active');
         exportBlock.show();
 
@@ -402,10 +423,9 @@ $(document).ready(function () {
     $('a.filter').click(function () {
         var link = $(this);
         var value = link.attr('id');
-        $('a.filter').not(link).find('i').remove();
-
-        localStorage.setItem('filter', value);
-        link.prepend('<i class="icon-ok"></i> ');
+        $('a.filter').not(link).css('font-weight', 'normal');
+        browser.storage.sync.set({'filter': value});
+        link.css('font-weight', 'bold');
 
         refreshSetsList(tab_url);
     });

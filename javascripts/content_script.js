@@ -51,8 +51,8 @@ $.fn.serializeForm = function () {
 };
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (typeof (localStorage) == 'undefined') {
-        alert("WebFormFiller: Your browser does not support HTML5 local storage feature. This extension will not work without this feature.");
+    if (typeof (browser.storage.sync) == 'undefined') {
+        alert("Web Developer Form Filler: Your browser does not support the extension storage API, get a better browser.");
         return;
     }
 

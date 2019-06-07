@@ -31,14 +31,14 @@ function fits(current, storage) {
 
 function getSetsForCurrentUrl(url) {
     var sets = [];
-    
-    for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
+    var bundle = null;
+    browser.storage.sync.get().then(response => bundle = response, error => {console.log(`Error: ${error}`); bundle = {};})
+    for (var i = 0; i < Object.keys(bundle).length; i++) {
+        var key = Object.keys(bundle)[i];
         if (key == 'filter') {
             continue;
         }
-
-        var settings = JSON.parse(localStorage.getItem(key));
+        var settings = JSON.parse(bundle[key]);
 
         if (fits(url, settings.url)) {
             settings.key = key;

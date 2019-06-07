@@ -20,12 +20,19 @@
 		"default_title": "Web Developer Form Filler",
 		"default_popup": "popup.html"
 	},
+	"browser_specific_settings": {
+	  "gecko": {
+	    "id": "{d354848e-5fd6-41c3-84d3-76e920aac579}",
+	    "strict_min_version": "42.0"
+	  }
+	},
 	"background": {
 		"page": "background.html"
 	},
 	"permissions": [
 		"tabs",
-		"http://*/", "https://*/"
+		"http://*/", "https://*/",
+		"storage"
 	],
 	"manifest_version":2
 }
