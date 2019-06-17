@@ -1,79 +1,51 @@
 var tab_url;
 
-function getAllSets() {
-
-    var sets = [];
-    var bundle = null;
-    browser.storage.sync.get().then(response => bundle = response, error => {console.log(`Error: ${error}`); bundle = {};})
-    while (bundle === null) {
-        // wait for async to settle
-    }
-    for (var i = 0; i < Object.keys(bundle).length; i++) {
-        var key = Object.keys(bundle)[i];
-        if (key == 'filter') {
-            continue;
-        }
-        var settings = JSON.parse(bundle[key]);
-        settings.key = key;
-        sets.push(settings);
-    }
-
-    return sets;
-}
-
-function sortBy(property) {
-
-    var sortOrder = 1;
-    if (property[0] === "-") {
-        sortOrder = -1;
-        property = property.substr(1);
-    }
-    return function (a, b) {
-        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-        return result * sortOrder;
-    }
-}
-
 function refreshSetsList(url) {
 
     var table = $('#sets');
-    var sets;
     
     table.find('tbody tr').remove();
-    
-    if (table.hasClass('allsets')) {
-        sets = getAllSets();
-        sets.sort(sortBy('url'));
-    } else {
-        sets = getSetsForCurrentUrl(url);
-        sets.sort(sortBy('name'));
-    }
-
-    if (sets.length) {
-        $('#sets').show();
-        $('#nosets').hide();
-        $('#clearall').removeClass('disabled');
-    } else {
-        $('#sets').hide();
-        $('#nosets').show();
-        //$('#nosets_url').text(url);
-        $('#clearall').addClass('disabled');
-        return;
-    }
-    
-    renderSets(sets);
-    
-    if (table.hasClass('allsets')) {
-        $('#clearall').addClass('disabled');
-        renderAdditionalInfo(sets);
-    } 
+    browser.storage.sync.get().then(response => {
+        let filter = response.filter;
+        delete response.filter;
+        if (!table.hasClass('allsets')) {
+            for (let i in response) {
+                if (typeof(response[i]) !== 'object') {
+                    delete response[i];
+                    browser.storage.sync.remove(i);
+                }
+                if (!fits(url, response[i].url, filter)) {
+                    delete response[i]; 
+                }
+            }
+        }
+        let sets = response;
+        if (Object.keys(sets).length !== 0) {
+            $('#sets').show();
+            $('#nosets').hide();
+            $('#clearall').removeClass('disabled');
+        } else {
+            $('#sets').hide();
+            $('#nosets').show();
+            //$('#nosets_url').text(url);
+            $('#clearall').addClass('disabled');
+            return;
+        }
+        
+        renderSets(sets);
+        
+        if (table.hasClass('allsets')) {
+            $('#clearall').addClass('disabled');
+            renderAdditionalInfo(sets);
+        } 
+    }, error => console.log(`Error: ${error}`))
 }
 
 function renderSets(sets) {
 
-    for (var i = 0; i < sets.length; i++) {
+    for (var i in sets) {
         var set = sets[i];
-        var newRow = $('<tr data-key="' + set.key + '"></tr>');
+        var newRow = $('<tr data-key="' + i + '"></tr>');
         newRow.append('<td class="restore"><i class="fas fa-arrow-up"></i> Restore</td>');
         newRow.append('<td class="setName">' + set.name + '</td>');
 
@@ -101,7 +73,7 @@ function renderAdditionalInfo(sets) {
         table.find('thead tr').append('<th class="url">URL</th>');
     }
 
-    for (var i = 0; i < sets.length; i++) {
+    for (var i in sets) {
         var set = sets[i];
         var row = table.find('tr[data-key=' + set.key + ']');
         var substrHref = set.url.length > 40 ? set.url.substring(0, 40) + '...' : set.url;
@@ -111,26 +83,12 @@ function renderAdditionalInfo(sets) {
 }
 
 function saveValue(tr, property, value) {
-
-    var key = tr.data('key');
+    var key = tr.data('key').toString();
     var setSettings = null;
-    browser.storage.sync.get(key).then(response => setSettings = response, error => {console.log(`Error: ${error}`); setSettings = {};})
-    while (setSettings === null) {
-        // wait for async to settle
-    }
-    setSettings[property] = value;
-    browser.storage.sync.set({key: JSON.stringify(setSettings)});
-}
-
-function getValue(tr, property) {
-
-    var key = tr.data('key');
-    var setSettings = null;
-    browser.storage.sync.get(key).then(response => setSettings = response, error => {console.log(`Error: ${error}`); setSettings = {};})
-    while (setSettings === null) {
-        // wait for async to settle
-    }
-    return setSettings[property];
+    browser.storage.sync.get(key).then(response => {
+        response[key][property] = value;
+        browser.storage.sync.set(response);
+    }, error => console.log(`Error: ${error}`))
 }
 
 function sendMessage(obj, callback) {
@@ -206,7 +164,9 @@ $(document).ready(function () {
 			}
 			
 			var key = getRandomStorageId();
-            browser.storage.sync.set({key: JSON.stringify(importedForm)});
+            let bundle = {};
+            bundle[key] = importedForm
+            browser.storage.sync.set(bundle);
 
 		}
 		catch (err) {
@@ -222,13 +182,26 @@ $(document).ready(function () {
             return;
         }
 
-        var sets = getSetsForCurrentUrl(tab_url);
-        
-        for (var i = 0; i < sets.length; i++) {
-            browser.storage.sync.remove(sets[i].key);
-        }
+        browser.storage.sync.get().then(response => {
+            let filter = response.filter;
+            delete response.filter;
+            for (let i in response) {
+                if (!fits(tab_url, response[i].url, filter)) {
+                    delete response[i]; 
+                }
+            }
+            let sets = response;
+            for (let i in sets) {
+                browser.storage.sync.remove(i).then(() => refreshSetsList(tab_url));
+            }
 
-        refreshSetsList(tab_url);
+        }, error => console.log(`Error: ${error}`))        
+    });
+
+    $('#cleareverything').click(() => {
+        if (confirm("Are you sure?!?")) {
+            browser.storage.sync.clear().then(() => refreshSetsList(tab_url));
+        }
     });
 
     $("#store").click(function () {
@@ -260,8 +233,10 @@ $(document).ready(function () {
                 name: key,
                 hotkey: ''
             };
-            browser.storage.sync.set({key: JSON.stringify(setSettings)});
-            refreshSetsList(tab_url);
+
+            let bundle = {};
+            bundle[key] = setSettings;
+            browser.storage.sync.set(bundle).then(() => refreshSetsList(tab_url));
         });
     });
 
@@ -272,15 +247,13 @@ $(document).ready(function () {
     });
 
     sets.on("click", 'td.restore:not(.disabled)', function (event) {
-        var key = $(this).parents('tr').data('key');
-        var setSettings = null;
-        browser.storage.sync.get(key).then(response => setSettings = response, error => {console.log(`Error: ${error}`); setSettings = {};})
-        while (setSettings === null) {
-            // wait for async to settle
-        }
-        sendMessage({ action: 'fill', setSettings: setSettings }, function(response) {
-             window.close();
-        });
+        var key = $(this).parents('tr').data('key').toString();
+        browser.storage.sync.get(key).then(setSettings => {
+            sendMessage({ action: 'fill', setSettings: setSettings[key] }, function(response) {
+                window.close();
+            });
+        }, error => console.log(`Error: ${error}`))
+
     });
     
     sets.on("click", 'td.submit', function (event) {
@@ -295,29 +268,30 @@ $(document).ready(function () {
                 return;
             }
 
-            var oldQuery = getValue(tr, 'submitQuery');
-            oldQuery = oldQuery ? oldQuery : 'input[type=submit]';
-
-            var query = prompt('Enter jquery selector for submit button to auto click', oldQuery);
-            if (query) {
-                saveValue(tr, 'submitQuery', query);
-                saveValue(tr, 'autoSubmit', true);
-                td.addClass('active');
-            } else {
-                td.removeClass('active');
-            }
+            var key = tr.data('key').toString();
+    
+            browser.storage.sync.get(key).then(response => {
+                var oldQuery = response['submitQuery'];
+                oldQuery = oldQuery ? oldQuery : 'input[type=submit]';
+                var query = prompt('Enter jquery selector for submit button to auto click', oldQuery);
+                if (query) {
+                    saveValue(tr, 'submitQuery', query);
+                    saveValue(tr, 'autoSubmit', true);
+                    td.addClass('active');
+                } else {
+                    td.removeClass('active');
+                }
+            }, error => console.log(`Error: ${error}`))
             
         } finally {
             refreshSetsList(tab_url);
         } 
-        
     });
 
     sets.on("click", 'td.remove', function (event) {
         var tr = $(this).parents('tr');
-        var key = tr.data('key');
-        browser.storage.sync.remove(key);
-		refreshSetsList(tab_url);
+        var key = tr.data('key').toString();
+        browser.storage.sync.remove(key).then(() => refreshSetsList(tab_url));
     });
 
     sets.on("click", 'td.export', function (event) {
@@ -330,16 +304,13 @@ $(document).ready(function () {
 
         var td = $(this);
         var tr = td.parents('tr');
-        var key = tr.data('key');
+        var key = tr.data('key').toString();
         var formJson = null;
-        browser.storage.sync.get(key).then(response => formJson = response, error => {console.log(`Error: ${error}`); formJson = {};})
-        while (formJson === null) {
-            // wait for async to settle
-        }
-        td.addClass('active');
-        exportBlock.show();
-
-        exportBlock.find('#txtFormJson').val(formJson).focus().select();
+        browser.storage.sync.get(key).then(response => {
+            td.addClass('active');
+            exportBlock.show();
+            exportBlock.find('#txtFormJson').val(JSON.stringify(response[key])).focus().select();
+        }, error => console.log(`Error: ${error}`))
     });
     
     sets.on("click", 'td.hotkey', function (event) {
@@ -352,11 +323,14 @@ $(document).ready(function () {
         
         var td = $(this);
         var tr = td.parents('tr');
-        var value = getValue(tr, 'hotkey');
+        var key = tr.data('key').toString();
+        browser.storage.sync.get(key).then(response => {
+            var value = response['hotkey'];
+            td.addClass('active');
+            hotkeyBlock.show();
+            hotkeyBlock.find('#txtHotkey').val(value).focus().select();
+        }, error => console.log(`Error: ${error}`))
 
-        td.addClass('active');
-        hotkeyBlock.show();
-        hotkeyBlock.find('#txtHotkey').val(value).focus().select();
     });
     
     sets.on("click", 'td.setName', function (event) {
@@ -367,9 +341,12 @@ $(document).ready(function () {
         
         var tr = td.parents('tr');
         var input = $('<input type="text" class="span1 txtSetName" />');
-        input.val(getValue(tr, 'name'));
+        var key = tr.data('key').toString();
+        browser.storage.sync.get(key).then(response => {
+            input.val(response['name']);
+            td.empty().append(input).find('input').focus().select();
+        }, error => console.log(`Error: ${error}`))
 
-        td.empty().append(input).find('input').focus().select();
     });
     
     sets.on("keyup", 'input.txtSetName', function (e) {

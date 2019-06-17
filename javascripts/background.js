@@ -1,35 +1,38 @@
-function getHotkeys(url) {
-    var sets = getSetsForCurrentUrl(url);
-    var hotkeys = [];
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-    for (var i = 0; i < sets.length; i++) {
-        if (!sets[i].hotkey) {
-            continue;
+    browser.storage.sync.get().then(response => {
+        let filter = response.filter;
+        delete response.filter;
+        for (let i in response) {
+            if (!fits(tab_url, response[i].url, filter)) {
+                delete response[i]; 
+            }
+        }
+        let sets = response;
+        var hotkeys = [];
+
+        for (let i in sets) {
+            if (!sets[i].hotkey) {
+                continue;
+            }
+            hotkeys.push(sets[i].hotkey);
         }
 
-        hotkeys.push(sets[i].hotkey);
-    }
 
-    return hotkeys;
-}
+        switch (request.action) {
+            case 'gethotkeys':
+                sendResponse(hotkeys);
+                break;
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    var hotkeys = getHotkeys(request.url);
-
-    switch (request.action) {
-        case 'gethotkeys':
-            sendResponse(hotkeys);
-            break;
-
-        case 'hotkey':
-            var sets = getSetsForCurrentUrl(request.url);
-            for (var i = 0; i < sets.length; i++) {
-                if (sets[i].hotkey == request.code) {
-                    sendResponse(sets[i]);
+            case 'hotkey':
+                for (let i in sets) {
+                    if (sets[i].hotkey == request.code) {
+                        sendResponse(sets[i]);
+                    }
                 }
-            }
-            break;
-    }
+                break;
+        }
+    }, error => console.log(`Error: ${error}`))
 
     return true;
 });
