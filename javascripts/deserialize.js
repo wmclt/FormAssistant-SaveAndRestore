@@ -12,11 +12,11 @@
         return str
             .replace('@@@DTPH@@@', '')
             .replace('%%','$%%$')
-            .replace('%H', now.getHours())
-            .replace('%M', now.getMinutes())
-            .replace('%S', now.getSeconds())
-            .replace('%d', now.getDay())
-            .replace('%m', now.getMonth())
+            .replace('%H', ("0" + now.getHours()).slice(-2))
+            .replace('%M', ("0" + now.getMinutes()).slice(-2))
+            .replace('%S', ("0" + now.getSeconds()).slice(-2))
+            .replace('%d', ("0" + now.getDate()).slice(-2))
+            .replace('%m', ("0" + (now.getMonth() + 1)).slice(-2))
             .replace('%y', now.getFullYear())
             .replace('$%%$', '%');
     }

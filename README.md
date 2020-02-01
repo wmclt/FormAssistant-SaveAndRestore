@@ -16,11 +16,11 @@ Usage:
 | Format | Description |
 |-|-|
 | %% | To represent a litteral '%' |
-| %H | Hours (0-24) |
-| %M | Minutes (0-59) |
-| %S | Seconds (0-59) |
-| %d | Day of the month (0-31) |
-| %m | Month (0-12) |
+| %H | Hours (00-23) |
+| %M | Minutes (00-59) |
+| %S | Seconds (00-59) |
+| %d | Day of the month (00-31) |
+| %m | Month (01-12) |
 | %y | Full Year (ex: 2020) |
 
 Forked from:
@@ -29,8 +29,5 @@ https://github.com/etbusch/web-developer-form-filler-ext
 Available as a Firefox Addon:
 https://addons.mozilla.org/en-US/firefox/addon/web-dev-form-filler/
 
-And at the Google Web Store 
+And at the Google Web Store (older version)
 https://chrome.google.com/webstore/detail/web-developer-form-filler/gbagmkohmhcjgbepncmehejaljoclpil
-
-
-
