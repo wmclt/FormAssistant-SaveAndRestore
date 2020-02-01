@@ -8,8 +8,8 @@
 				"matches" : [ "http://*/*", "https://*/*", "file:///*" ],
 				"run_at" : "document_start"
 				} ],
-	"name": "Web Developer Form Filler",
-	"version": "1.2.0",
+	"name": "Web Developer Form Filler (mathieuf20's fork)",
+	"version": "1.2.1",
 	"icons" : { 
 			"16" :  "images/16.png",
 		    "48" :  "images/48.png",
@@ -17,13 +17,13 @@
 	"description": "This extension is used by developers to make it easy to save and fill forms for use in submission testing and validation.",
 	"browser_action": {
 		"default_icon": "images/48.png",
-		"default_title": "Web Developer Form Filler",
+		"default_title": "Web Developer Form Filler (mathieuf20's fork)",
 		"default_popup": "popup.html"
 	},
 	"browser_specific_settings": {
 	  "gecko": {
-	    "id": "{d354848e-5fd6-41c3-84d3-76e920aac579}",
-	    "strict_min_version": "42.0"
+	    "id": "{6E36CF68-0EC3-4E5F-960F-ED0783B84B1B}",
+	    "strict_min_version": "57.0"
 	  }
 	},
 	"background": {
