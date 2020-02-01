@@ -9,7 +9,9 @@ Date and Time autofill support has been added over original fork.
 
 Usage:
 1. In an input of type _textarea_, _text_, _email_, _search_, _url_ or _date_, type _*@@@DTPH@@@*_ at the beginning of the field (it will be removed in the output)
-2. Type your input and add formatting as needed :
+2. Type your input and add formatting as needed (see table below)
+3. Save your form
+4. Restore your form and it will now use this formatting
 
 | Format | Description |
 |-|-|
