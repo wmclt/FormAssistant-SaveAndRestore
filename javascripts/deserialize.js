@@ -7,6 +7,20 @@
         elem[0].dispatchEvent(evt);
     }
 
+    function replaceDateTimePlaceholders(str) {
+        var now = new Date();
+        return str
+            .replace('@@@DTPH@@@', '')
+            .replace('%%','$%%$')
+            .replace('%H', now.getHours())
+            .replace('%M', now.getMinutes())
+            .replace('%S', now.getSeconds())
+            .replace('%d', now.getDay())
+            .replace('%m', now.getMonth())
+            .replace('%y', now.getFullYear())
+            .replace('$%%$', '%');
+    }
+
     $.fn.extend({
         deserialize: function (d, config) {
             var currentDom,
@@ -54,7 +68,12 @@
                     if ($currentSavedValue === undefined) {
                         console.warn('Value for ' + name + ' not found');
                     } else {
-                        $current.val($currentSavedValue);
+                        if(String($currentSavedValue).startsWith('@@@DTPH@@@')) {
+                            $current.val(replaceDateTimePlaceholders($currentSavedValue));
+                        }
+                        else {
+                            $current.val($currentSavedValue);
+                        }
                     }
                     triggerNativeEvent($current, 'change');
                     triggerNativeEvent($current, 'blur');
@@ -99,7 +118,24 @@
                     return true;
                 }
 
-                if ($current.is('input:text, input:password, input[type=email], input[type=number], input[type=search], input[type=tel], input[type=url], input[type=date]')) {
+                if ($current.is('input:text, input[type=email], input[type=search], input[type=url], input[type=date]')) {
+                    if ($currentSavedValue === undefined) {
+                        console.warn('Value for ' + name + ' not found');
+                    } else {
+                        if(String($currentSavedValue).startsWith('@@@DTPH@@@')) {
+                            $current.val(replaceDateTimePlaceholders($currentSavedValue));
+                        }
+                        else {
+                            $current.val($currentSavedValue);
+                        }
+                    }
+                    triggerNativeEvent($current, 'input');
+                    triggerNativeEvent($current, 'change');
+                    triggerNativeEvent($current, 'blur');
+                    return true;
+                }
+
+                if ($current.is('input:password, input[type=number], input[type=tel]')) {
                     if ($currentSavedValue === undefined) {
                         console.warn('Value for ' + name + ' not found');
                     } else {
