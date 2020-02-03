@@ -27,7 +27,7 @@ Forked from:
 https://github.com/etbusch/web-developer-form-filler-ext
 
 Available as a Firefox Addon:
-https://addons.mozilla.org/en-US/firefox/addon/web-dev-form-filler/
+https://addons.mozilla.org/en-US/firefox/addon/wdff-mathieuf20/
 
 And at the Google Web Store (older version)
 https://chrome.google.com/webstore/detail/web-developer-form-filler/gbagmkohmhcjgbepncmehejaljoclpil
