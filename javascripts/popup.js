@@ -101,14 +101,16 @@ function sendMessage(obj, callback) {
 function setCurrentFilter() {
 
     var value;
-    browser.storage.sync.get('filter').then(response => value = response, error => console.log(`Error: ${error}`))
-    if (!value) {
-        browser.storage.sync.set({'filter': FILTER_BY_FULL});
-        value = FILTER_BY_FULL;
-    }
-
-    var link = $('a.filter[id=' + value + ']');
-    link.css('font-weight', 'bold');
+    browser.storage.sync.get('filter').then(response => {
+        value = response.filter
+        if (!value) {
+            browser.storage.sync.set({'filter': FILTER_BY_FULL});
+            value = FILTER_BY_FULL;
+        }
+    
+        var link = $('a.filter[id=' + value + ']');
+        link.css('font-weight', 'bold');
+    }, error => console.log(`Error: ${error}`))
 }
 
 function getRandomStorageId() {
