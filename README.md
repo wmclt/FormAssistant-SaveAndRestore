@@ -1,4 +1,4 @@
-web-developer-form-filler-ext
+FormAssistant - Save & Restore
 =============================
 
 This extension is used by developers to make it easy to snapshot and fill forms quickly.
@@ -23,11 +23,8 @@ Usage:
 | %m | Month (01-12) |
 | %y | Full Year (ex: 2020) |
 
-Forked from:
-https://github.com/etbusch/web-developer-form-filler-ext
-
 Available as a Firefox Addon:
-https://addons.mozilla.org/en-US/firefox/addon/wdff-mathieuf20/
+https://addons.mozilla.org/en-US/firefox/addon/formassistant-saveandrestore/
 
 And at the Google Web Store (older version)
 https://chrome.google.com/webstore/detail/web-developer-form-filler/gbagmkohmhcjgbepncmehejaljoclpil
