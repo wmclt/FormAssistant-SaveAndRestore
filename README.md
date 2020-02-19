@@ -26,5 +26,5 @@ Usage:
 Available as a Firefox Addon:
 https://addons.mozilla.org/en-US/firefox/addon/formassistant-saveandrestore/
 
-And at the Google Web Store (older version)
-https://chrome.google.com/webstore/detail/web-developer-form-filler/gbagmkohmhcjgbepncmehejaljoclpil
+And at the Google Web Store
+https://chrome.google.com/webstore/detail/formassistant-save-restor/eoccmgkpiljbelbbhkjpagljajmikjme
