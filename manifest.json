@@ -15,6 +15,7 @@
 		    "48" :  "images/48.png",
 		    "128" : "images/128.png"},
 	"description": "This extension is used by developers to make it easy to save and fill forms for use in submission testing and validation.",
+	"homepage_url": "https://github.com/etbusch/web-developer-form-filler-ext",
 	"browser_action": {
 		"default_icon": "images/48.png",
 		"default_title": "Web Developer Form Filler",
