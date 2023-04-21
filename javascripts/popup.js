@@ -184,6 +184,10 @@ $(document).ready(function () {
             return;
         }
 
+        if (!confirm('Are you sure?')) {
+            return;
+        }
+
         browser.storage.sync.get().then(response => {
             let filter = response.filter;
             delete response.filter;
