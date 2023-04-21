@@ -52,7 +52,7 @@ $.fn.serializeForm = function () {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (typeof (browser.storage.sync) == 'undefined') {
-        alert("Web Developer Form Filler: Your browser does not support the extension storage API, get a better browser.");
+        alert("Web Developer Form Filler: Your browser does not support the extension storage API, try upating your browser.");
         return;
     }
 

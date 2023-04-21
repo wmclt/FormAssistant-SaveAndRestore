@@ -4,7 +4,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         let filter = response.filter;
         delete response.filter;
         for (let i in response) {
-            if (!fits(tab_url, response[i].url, filter)) {
+            if (!fits(request.url, response[i].url, filter)) {
                 delete response[i]; 
             }
         }
