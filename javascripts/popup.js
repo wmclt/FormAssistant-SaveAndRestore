@@ -349,10 +349,9 @@ $(document).ready(function () {
         var input = $('<input type="text" class="span1 txtSetName" />');
         var key = tr.data('key').toString();
         browser.storage.sync.get(key).then(response => {
-            input.val(response['name']);
+            input.val(response[key]['name']);
             td.empty().append(input).find('input').focus().select();
-        }, error => console.log(`Error: ${error}`))
-
+        }, error => console.log(`Error: ${error}`));
     });
     
     sets.on("keyup", 'input.txtSetName', function (e) {
