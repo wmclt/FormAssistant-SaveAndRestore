@@ -25,7 +25,9 @@
 		"default_title": "FormAssistant - Save & Restore",
 		"default_popup": "popup.html"
 	},
+
 	"permissions": ["tabs","http://*/", "https://*/","storage"],
+	
 	"browser_specific_settings": {
 	  "gecko": {
 		"id": "formAssistant-SaveAndRestore@example.org",
