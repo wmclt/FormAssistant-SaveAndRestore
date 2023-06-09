@@ -4,7 +4,7 @@
 
 	"name": "FormAssistant - Save & Restore",
 	"description": "This extension is used by web developers to make it easy to save and restore forms for use in submission testing and validation.",
-	"version": "1.3.0",
+	"version": "1.4.0",
 
 	"content_scripts" : [ {
 				"js" : [
